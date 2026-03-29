@@ -1,0 +1,9 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "node --experimental-sqlite src/app.js"
+restartPolicyType = "ON_FAILURE"
+
+[environments.production.variables]
+NODE_ENV = "production"
