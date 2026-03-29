@@ -81,13 +81,6 @@ export default function Login() {
           </button>
         </form>
 
-        {mode === 'login' && (
-          <div style={{ marginTop: 20, padding: 14, background: 'rgba(99,102,241,0.08)', borderRadius: 8, border: '1px solid rgba(99,102,241,0.2)' }}>
-            <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 }}>Acceso Admin</div>
-            <div style={{ fontSize: 12, color: 'var(--text2)' }}>📧 juan@hub.com</div>
-            <div style={{ fontSize: 12, color: 'var(--text2)' }}>🔑 admin123</div>
-          </div>
-        )}
       </div>
     </div>
   );
