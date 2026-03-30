@@ -73,6 +73,7 @@ router.put('/:taskId', auth, (req, res) => {
     autoStatus = doneSteps === newSteps.length ? 'done' : doneSteps > 0 ? 'in_progress' : 'pending';
   }
 
+  const n = (v) => (v === undefined ? null : v);
   db.prepare(`UPDATE tasks SET
     title=COALESCE(?,title),
     description=COALESCE(?,description),
@@ -83,7 +84,7 @@ router.put('/:taskId', auth, (req, res) => {
     steps=?,
     progress=?
     WHERE id = ? AND project_id = ?`)
-    .run(title, description, autoStatus, priority, assigned_to, due_date,
+    .run(n(title), n(description), autoStatus, n(priority), n(assigned_to), n(due_date),
       JSON.stringify(newSteps), taskProgress, req.params.taskId, req.params.projectId);
 
   recalcProgress(req.params.projectId);
