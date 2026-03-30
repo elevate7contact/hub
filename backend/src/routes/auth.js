@@ -25,15 +25,17 @@ router.post('/login', (req, res) => {
   res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar_color: user.avatar_color } });
 });
 
-// Register via invitation
+// Register with workspace invite code
 router.post('/register', (req, res) => {
   const { name, email, password, invite_code } = req.body;
   if (!name || !email || !password || !invite_code) {
     return res.status(400).json({ error: 'Todos los campos son requeridos' });
   }
 
-  const invitation = db.prepare('SELECT * FROM invitations WHERE code = ? AND status = ?').get(invite_code, 'pending');
-  if (!invitation) return res.status(400).json({ error: 'Código de invitación inválido o ya usado' });
+  const config = db.prepare("SELECT value FROM workspace_config WHERE key = 'invite_code'").get();
+  if (!config || invite_code.toUpperCase() !== config.value.toUpperCase()) {
+    return res.status(400).json({ error: 'Código de acceso inválido. Solicítalo al administrador.' });
+  }
 
   const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase());
   if (existing) return res.status(400).json({ error: 'El email ya está registrado' });
@@ -43,19 +45,11 @@ router.post('/register', (req, res) => {
   const colors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
   const color = colors[Math.floor(Math.random() * colors.length)];
 
-  db.prepare(`INSERT INTO users (id, name, email, password_hash, avatar_color) VALUES (?,?,?,?,?)`).run(userId, name, email.toLowerCase(), hash, color);
+  db.prepare(`INSERT INTO users (id, name, email, password_hash, avatar_color) VALUES (?,?,?,?,?)`)
+    .run(userId, name, email.toLowerCase(), hash, color);
 
-  // Join project
-  const alreadyMember = db.prepare('SELECT 1 FROM project_members WHERE project_id = ? AND user_id = ?').get(invitation.project_id, userId);
-  if (!alreadyMember) {
-    db.prepare('INSERT INTO project_members (project_id, user_id, role) VALUES (?,?,?)').run(invitation.project_id, userId, 'member');
-  }
-
-  // Mark invitation used
-  db.prepare('UPDATE invitations SET status = ?, used_by = ? WHERE id = ?').run('used', userId, invitation.id);
-
-  const token = jwt.sign({ id: userId, email, name, role: 'member' }, process.env.JWT_SECRET, { expiresIn: '7d' });
-  res.json({ token, user: { id: userId, name, email, role: 'member', avatar_color: color } });
+  const token = jwt.sign({ id: userId, email: email.toLowerCase(), name, role: 'member' }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  res.json({ token, user: { id: userId, name, email: email.toLowerCase(), role: 'member', avatar_color: color } });
 });
 
 // Get current user

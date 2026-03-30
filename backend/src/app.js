@@ -21,6 +21,7 @@ app.use(cors({
 app.use(express.json());
 
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/workspace', require('./routes/workspace'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/projects/:projectId/tasks', require('./routes/tasks'));
 app.use('/api/projects/:projectId/comments', require('./routes/comments'));

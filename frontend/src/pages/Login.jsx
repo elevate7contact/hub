@@ -35,7 +35,7 @@ export default function Login() {
       <div className="login-card">
         <div className="login-logo">
           <span className="logo-icon">🚀</span>
-          <h1 className="gradient-text">HUB</h1>
+          <h1 className="gradient-text">Hub7</h1>
           <p>Centro de Gestión de Proyectos</p>
         </div>
 
