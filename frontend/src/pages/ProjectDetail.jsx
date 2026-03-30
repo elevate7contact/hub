@@ -78,9 +78,8 @@ function TaskItem({ task, projectId, onUpdate, onDelete, isOwner }) {
             {/* Checkbox solo cuando no tiene pasos */}
             {steps.length === 0 && (
               <button
-                className={`task-check ${isDone ? 'done' : task.status === 'in_progress' ? 'in-progress' : ''}`}
+                className={`task-check ${isDone ? 'done' : ''}`}
                 onClick={toggleDone} disabled={saving}
-                style={{ border: 'none', cursor: 'pointer' }}
                 title={isDone ? 'Marcar pendiente' : 'Marcar como lista'}>
                 {isDone && <span style={{ color: '#fff', fontSize: 10 }}>✓</span>}
               </button>
