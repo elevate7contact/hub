@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
-const DB_PATH = path.join(__dirname, '../../hub.db');
+const DB_PATH = process.env.DATABASE_PATH || path.join(__dirname, '../../hub.db');
 const db = new DatabaseSync(DB_PATH);
 
 function initializeDB() {
