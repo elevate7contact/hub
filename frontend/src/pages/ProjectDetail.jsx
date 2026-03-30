@@ -282,25 +282,40 @@ export default function ProjectDetail() {
             {project.tasks?.length > 0 && (
               <div className="card">
                 <div className="font-semibold mb-12" style={{ fontSize: 15 }}>Tareas Recientes</div>
-                {project.tasks.slice(0, 5).map(t => (
-                  <div key={t.id} className="task-item">
-                    <div className={`task-check ${t.status === 'done' ? 'done' : t.status === 'in_progress' ? 'in-progress' : ''}`}>
-                      {t.status === 'done' && <span style={{ color: '#fff', fontSize: 11 }}>✓</span>}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div className={`task-title ${t.status === 'done' ? 'done' : ''}`}>{t.title}</div>
-                      {(t.steps || []).length > 0 && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                          <div style={{ flex: 1, height: 3, background: 'var(--bg4)', borderRadius: 99 }}>
-                            <div style={{ width: `${t.progress||0}%`, height: '100%', background: '#6366f1', borderRadius: 99 }} />
+                {project.tasks.slice(0, 5).map(t => {
+                  const hasSteps = (t.steps || []).length > 0;
+                  const isDone = hasSteps ? t.progress === 100 : t.status === 'done';
+                  return (
+                    <div key={t.id} className="task-item">
+                      <button
+                        className={`task-check ${isDone ? 'done' : t.status === 'in_progress' ? 'in-progress' : ''}`}
+                        disabled={hasSteps}
+                        onClick={async () => {
+                          if (hasSteps) return;
+                          const next = t.status === 'done' ? 'pending' : 'done';
+                          try { await api.tasks.update(id, t.id, { status: next }); load(); refreshProjects(); }
+                          catch (e) { toast(e.message, 'error'); }
+                        }}
+                        title={hasSteps ? `${t.progress||0}% completado` : isDone ? 'Marcar pendiente' : 'Marcar como lista'}
+                        style={{ cursor: hasSteps ? 'default' : 'pointer' }}
+                      >
+                        {isDone && <span style={{ color: '#fff', fontSize: 10 }}>✓</span>}
+                      </button>
+                      <div style={{ flex: 1 }}>
+                        <div className={`task-title ${isDone ? 'done' : ''}`}>{t.title}</div>
+                        {hasSteps && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                            <div style={{ flex: 1, height: 3, background: 'var(--bg4)', borderRadius: 99 }}>
+                              <div style={{ width: `${t.progress||0}%`, height: '100%', background: '#6366f1', borderRadius: 99 }} />
+                            </div>
+                            <span style={{ fontSize: 11, color: 'var(--text3)' }}>{t.progress||0}%</span>
                           </div>
-                          <span style={{ fontSize: 11, color: 'var(--text3)' }}>{t.progress||0}%</span>
-                        </div>
-                      )}
+                        )}
+                      </div>
+                      <span className={`badge priority-${t.priority}`}>{t.priority}</span>
                     </div>
-                    <span className={`badge priority-${t.priority}`}>{t.priority}</span>
-                  </div>
-                ))}
+                  );
+                })}
                 <button onClick={() => setTab('tasks')} style={{ width: '100%', marginTop: 12, padding: '8px', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 8, cursor: 'pointer', color: 'var(--text2)', fontSize: 12 }}>
                   Ver todas las tareas →
                 </button>
